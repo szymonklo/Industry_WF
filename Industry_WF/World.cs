@@ -1,0 +1,50 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Text;
+using Industry;
+
+namespace Industry_WF
+{
+    class World
+    {
+        public static List<City> Cities = new List<City>();
+        public static List<Factory> Factories = new List<Factory>();
+        public World()
+        {
+            ProductType water = new ProductType(1, 1, "water", 1);
+            ProductType bread = new ProductType(2, 1, "bread", 2, new List<ProductType> { water });
+            List<ProductType> ProductsTypes = new List<ProductType>
+            {
+                water,
+                bread
+            };
+            ProductsKeyed products = new ProductsKeyed();
+            foreach (ProductType productType in ProductsTypes)
+            {
+                products.Add(new Product(productType));
+            }
+
+            Factory waterSupply = new Factory("Water supply", 100, water, 4);
+            Factory bakery = new Factory("Bakery", 60, bread, 3);
+            Factories.Add(waterSupply);
+            Factories.Add(bakery);
+            //temp
+            bakery.Products[1].AmountIn = 200;
+            bakery.Products[1].ProductPrice = 1.1;
+
+            City krakow = new City("Krakow", 80);
+            City warszawa = new City("Warszawa", 100);
+            Cities.Add(krakow);
+            Cities.Add(warszawa);
+            //Create cities demand
+            //Console.WriteLine("**** Cities demand ****\n");
+            foreach (City city in Cities)
+            {
+                foreach (ProductType productType in ProductsTypes)
+                {
+                    city.Products.Add(new Product(productType));
+                }
+            }
+        }
+    }
+}
