@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Industry
+namespace Industry_WF
 {
     class ProductType
     {
@@ -23,5 +23,6 @@ namespace Industry
         public double DefCost { get; set; }
         public List<ProductType> Components { get; set; }
         //private static int _nextId = 1;
+
     }
 }

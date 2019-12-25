@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Industry
+namespace Industry_WF
 {
     class Write
     {
@@ -11,11 +11,12 @@ namespace Industry
 
         public void HandleProductSold(Facility sender, EventArgs args)
         {
-            Console.Write("City: ");
+            Console.Write("City:\t");
             Console.ForegroundColor = _cityColour;
             Console.Write(sender.Name);
             Console.ForegroundColor = _defColour;
-            Console.Write(" consumes products. \n");
+            Console.Write("\t bought \t");
+            //Console.WriteLine(sender.product.);
         }
     }
 }

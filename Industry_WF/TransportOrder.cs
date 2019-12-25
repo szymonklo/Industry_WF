@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Industry
+namespace Industry_WF
 {
     class TransportOrder
     {
@@ -25,6 +25,7 @@ namespace Industry
                     receiver.Products.Add(new Product(productType, Amount));
                 }
                 double productInCost = productIn.AmountIn * productIn.ProductCost + Amount * sender.Products[productType.Id].ProductCost + TransportCost;
+                Program.Money -= TransportCost;
                 productIn.AmountIn += Amount;
                 productIn.ProductCost = productInCost / productIn.AmountIn;
 

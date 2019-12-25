@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-using Industry;
+using Industry_WF;
 
-namespace Industry
+namespace Industry_WF
 {
     class Factory : Facility
     {
@@ -81,6 +81,7 @@ namespace Industry
 
                 Product.AmountOut += ProductionAmount();
                 produktsOnStockCosts += Product.ProductCost * Product.AmountOut + BaseCost;
+                Program.Money -= Product.ProductCost * Product.AmountOut + BaseCost;
                 Product.ProductCost = produktsOnStockCosts / Product.AmountOut;
                 
                 Console.WriteLine($"{Name} produced: {ProductionAmount()} {Product.Name} (On stock: {Product.AmountOut} {Product.Name})");

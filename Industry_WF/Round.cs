@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-using Industry;
+using Industry_WF;
 using System.Collections.ObjectModel;
 using System.Linq;
 
@@ -9,9 +9,10 @@ namespace Industry_WF
 {
     class Round
     {
+        public static int RoundNumber { get; set; }
         public static void Go()
         {
-            
+            Console.WriteLine("Round: " + RoundNumber);
             //Cities demand
             Console.WriteLine("**** Cities demand ****\n");
             foreach (City city in World.Cities)
@@ -60,10 +61,12 @@ namespace Industry_WF
             Console.WriteLine("**** Cities consume ****\n");
             foreach (City city in World.Cities)
             {
-                city.ProductWasSold += new Write().HandleProductSold;   //event
                 city.Consume();
             }
             Console.WriteLine("\n");
+
+            RoundNumber++;
+
         }
     }
 }

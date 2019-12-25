@@ -13,22 +13,30 @@ namespace Industry_WF
         ///  The main entry point for the application.
         /// </summary>
         //[STAThread]
+        public static double Money { get; set; } = 1000;
         static void Main()
         {
             //Application.SetHighDpiMode(HighDpiMode.SystemAware);
             //Application.EnableVisualStyles();
             //Application.SetCompatibleTextRenderingDefault(false);
             //Console.SetWindowPosition(1, 1);
-            
-            Console.WindowTop = 0;
-            Console.WriteLine("Day 0\n");
-            Console.WriteLine(Console.WindowLeft);
+            //Console.WindowTop = 0;
+            //Console.WriteLine(Console.WindowLeft);
+
+            //przygotowanie delegata
+            //public delegate void OnTransactionDoneDelegate(Facility c, EventArgs e);
+
+            //przygotowaæ deklaracjê zdarzenia na podstawie powy¿szego delagata:
+            //public event OnTransactionDoneDelegate OnTransactionDone;
 
             World world = new World();
+            Form1 form1 = new Form1();
 
-            Round.Go();
+            form1.Text = "Round: "+Round.RoundNumber;
+            Application.Run(form1);
 
-            Application.Run(new Form1());
+            //Round.Go();
+
 
         }
     }

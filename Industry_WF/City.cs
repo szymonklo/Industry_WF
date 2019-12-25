@@ -2,16 +2,21 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Industry
+namespace Industry_WF
 {
     class City : Facility
     {
         public int Population { get; set; }
+        public double Income { get; set; }
+        public int Id { get; set; }
+        private static int lastId { get; set; }
 
-        public City(string name, int population)//, ProductsKeyed productsOut = null)
+    public City(string name, int population)//, ProductsKeyed productsOut = null)
         {
             Name = name;
             Population = population;
+            Id=lastId;
+            lastId++;
         }
 
         public void Demand()
@@ -39,9 +44,10 @@ namespace Industry
                     product.AmountOut -= product.AmountDone;
                     product.AmountIn -= product.AmountDone;
 
-                    double income = product.AmountDone * product.ProductPrice;
+                    Income = product.AmountDone * product.ProductPrice;
+                    Program.Money += Income;
                     double cost = product.AmountDone * product.ProductCost;
-                    double profit = income - cost;
+                    double profit = Income - cost;
                     product.ProductProfit = profit / product.AmountDone;
 
                     //activate event
@@ -50,13 +56,14 @@ namespace Industry
                     Console.WriteLine($"{Name} consumed {product.AmountDone} {product.Name}");
                     Console.WriteLine($"{Name} still demands {product.AmountOut} {product.Name}");
                     Console.WriteLine($"{Name} stil has {product.AmountIn} {product.Name}");
-                    Console.WriteLine($"{Name} paid {income:c} ({product.ProductPrice:c} per 1 pc)");
+                    Console.WriteLine($"{Name} paid {Income:c} ({product.ProductPrice:c} per 1 pc)");
                     Console.WriteLine($"Company profit is {profit:c} ({product.ProductProfit:c} per 1 pc\n");
                 }
             }
         }
         //przygotowanie delegata
         public delegate void EventHandler(Facility c, EventArgs e);
+
         //przygotować deklarację zdarzenia na podstawie powyższego delagata:
         public event EventHandler ProductWasSold;
         //public void DoSomething() =>

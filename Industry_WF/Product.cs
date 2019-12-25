@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-using Industry;
+using Industry_WF;
 
-namespace Industry
+namespace Industry_WF
 {
     class Product : ProductType
     {

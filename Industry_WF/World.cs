@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-using Industry;
+using Industry_WF;
 
 namespace Industry_WF
 {
@@ -40,10 +40,14 @@ namespace Industry_WF
             //Console.WriteLine("**** Cities demand ****\n");
             foreach (City city in Cities)
             {
+                //form1.AddCityLabel(city);
                 foreach (ProductType productType in ProductsTypes)
                 {
                     city.Products.Add(new Product(productType));
                 }
+                city.ProductWasSold += new Write().HandleProductSold;   //event
+                city.ProductWasSold += Form1.OnTransactionDone;
+
             }
         }
     }

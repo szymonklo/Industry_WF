@@ -1,5 +1,6 @@
 ﻿namespace Industry_WF
 {
+    /*
     partial class Form1
     {
         /// <summary>
@@ -36,5 +37,6 @@
 
         #endregion
     }
+    */
 }
 
