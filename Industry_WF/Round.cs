@@ -39,7 +39,9 @@ namespace Industry_WF
                     {
                         if (factoryR.ProductType.Components.Contains(factoryS.ProductType))
                         {
-                            TransportOrder transportOrder = new TransportOrder(factoryS, factoryR, factoryS.ProductType, 40);
+                            TransportOrder transportOrder = new TransportOrder();
+                            transportOrder.FewProductsToSend += Form1.OnFewProductsToSendMessage;
+                            transportOrder.Go(factoryS, factoryR, factoryS.ProductType, 40);
                         }
                     }
                 }
@@ -52,7 +54,9 @@ namespace Industry_WF
             {
                 foreach (City city in World.Cities)
                 {
-                    TransportOrder transportOrder = new TransportOrder(factory, city, factory.ProductType, 40);
+                    TransportOrder transportOrder = new TransportOrder();
+                    transportOrder.FewProductsToSend += Form1.OnFewProductsToSendMessage;
+                    transportOrder.Go(factory, city, factory.ProductType, 40);
                 }
             }
             Console.WriteLine("\n");

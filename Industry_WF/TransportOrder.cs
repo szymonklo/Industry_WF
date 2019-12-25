@@ -8,10 +8,21 @@ namespace Industry_WF
     {
         public int TransportCost { get; set; } = 1;
         public int Amount { get; set; }
-        public TransportOrder(Facility sender, Facility receiver, ProductType productType, int capacity)
+
+        //przygotowanie delegata
+        public delegate void FewProductsToSendDelegate(Facility c, ProductEventArgs e);
+        //przygotować deklarację zdarzenia na podstawie powyższego delagata:
+        public event FewProductsToSendDelegate FewProductsToSend;
+
+        public TransportOrder()
+        { }
+
+        public void Go(Facility sender, Facility receiver, ProductType productType, int capacity)
         {
-            if (sender.Products.Contains(productType.Id) && sender.Products[productType.Id].AmountOut>0)
+            if (sender.Products.Contains(productType.Id) && sender.Products[productType.Id].AmountOut > 0)
             {
+                if (sender.Products[productType.Id].AmountOut < capacity)
+                    FewProductsToSend?.Invoke(sender, new ProductEventArgs(sender.Products[productType.Id]));
                 Amount = Math.Min(capacity, sender.Products[productType.Id].AmountOut);
                 sender.Products[productType.Id].AmountOut -= Amount;
                 Product productIn;
@@ -34,7 +45,10 @@ namespace Industry_WF
                 Console.WriteLine($"In {receiver.Name} (destination) there are {receiver.Products[productType.Id].AmountIn} {receiver.Products[productType.Id].Name}\n");
             }
             else
+            {
                 Console.WriteLine("no product to send");
+                FewProductsToSend?.Invoke(sender, new ProductEventArgs(sender.Products[productType.Id]));
+            }
+            }
         }
-    }
 }

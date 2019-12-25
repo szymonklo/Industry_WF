@@ -11,8 +11,8 @@ namespace Industry_WF
         public static List<Factory> Factories = new List<Factory>();
         public World()
         {
-            ProductType water = new ProductType(1, 1, "water", 1);
-            ProductType bread = new ProductType(2, 1, "bread", 2, new List<ProductType> { water });
+            ProductType water = new ProductType(0, 1, "water", 1);
+            ProductType bread = new ProductType(1, 1, "bread", 2, new List<ProductType> { water });
             List<ProductType> ProductsTypes = new List<ProductType>
             {
                 water,
@@ -29,8 +29,8 @@ namespace Industry_WF
             Factories.Add(waterSupply);
             Factories.Add(bakery);
             //temp
-            bakery.Products[1].AmountIn = 200;
-            bakery.Products[1].ProductPrice = 1.1;
+            bakery.Products[0].AmountIn = 200;
+            bakery.Products[0].ProductPrice = 1.1;
 
             City krakow = new City("Krakow", 80);
             City warszawa = new City("Warszawa", 100);
@@ -53,7 +53,8 @@ namespace Industry_WF
 
             foreach (Factory factory in Factories)
             {
-                factory.OnNoComponents += Form1.OnNoComponentsMessage;
+                factory.NoComponents += Form1.OnNoComponentsMessage;
+                factory.TransactionDone += Form1.OnTransactionDone;
             }
         }
     }

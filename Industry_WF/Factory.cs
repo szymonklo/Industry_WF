@@ -13,6 +13,8 @@ namespace Industry_WF
         public Product Product { get; set; }
         private static readonly int _defProduction = 1;
         public byte Tier { get; set; }
+        public int Id { get; set; }
+        private static int lastId { get; set; }
 
         public Factory(string factoryName, int factoryDefProduction, ProductType productType, byte tier)
         {
@@ -20,7 +22,9 @@ namespace Industry_WF
             DefProduction = factoryDefProduction;
             ProductType = productType;
             Tier = tier;
-            
+            Id = lastId;
+            lastId++;
+
             Product = new Product(productType);
             Products.Add(Product);
             if (productType.Components != null)
@@ -33,10 +37,13 @@ namespace Industry_WF
         }
 
         //przygotowanie delegata
-        public delegate void OnNoComponentsDelegate(Facility c, EventArgs e);
-
+        public delegate void NoComponentsDelegate(Facility c, ProductEventArgs e);
+        public delegate void TransactionDoneDelegate(Facility c, ProductEventArgs e);
         //przygotować deklarację zdarzenia na podstawie powyższego delagata:
-        public event OnNoComponentsDelegate OnNoComponents;
+        public event NoComponentsDelegate NoComponents;
+        public event TransactionDoneDelegate TransactionDone;
+
+
         public void Produce(ProductType productType)
         {
             if (productType.Id != Product.Id)
@@ -59,7 +66,7 @@ namespace Industry_WF
                     {
                         IsComponent = false;
                         //activate event
-                        OnNoComponents?.Invoke(this, EventArgs.Empty);
+                        NoComponents?.Invoke(this, new ProductEventArgs(factoryComponent));
                         break;
                     }
                 }
@@ -90,7 +97,8 @@ namespace Industry_WF
                 produktsOnStockCosts += Product.ProductCost * Product.AmountOut + BaseCost;
                 Program.Money -= Product.ProductCost * Product.AmountOut + BaseCost;
                 Product.ProductCost = produktsOnStockCosts / Product.AmountOut;
-                
+
+                TransactionDone?.Invoke(this, new ProductEventArgs(new Product(productType)));
                 Console.WriteLine($"{Name} produced: {ProductionAmount()} {Product.Name} (On stock: {Product.AmountOut} {Product.Name})");
                 Console.WriteLine($"{Product.Name} cost is {Product.ProductCost:c} per 1 pc.");
             }

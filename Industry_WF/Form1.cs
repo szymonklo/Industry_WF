@@ -21,13 +21,24 @@ namespace Industry_WF
             "Product",
             "Income"
         };
+        private static List<string> headersF = new List<string>
+        {
+            "Factory",
+            "Product",
+            "Cost"
+        };
         private int headerLabelsPos = 0;
+
 
         private static List<Label> citiesLabels= new List<Label>();
         private int citiesLabelsPos = 20;
+        private static List<Label> factoriesLabels = new List<Label>();
+        private int factoriesLabelsPos = 320;
         //private int citiesProductLabelsPos = 0;
         private static List<Label> citiesProductsLabels = new List<Label>();
         private static List<Label> citiesIncomeLabels = new List<Label>();
+        private static List<Label> factoriesProductsLabels = new List<Label>();
+        private static List<Label> factoriesCostLabels = new List<Label>();
 
 
         private void OnbNextRoundClick(object sender, EventArgs ea)
@@ -41,17 +52,28 @@ namespace Industry_WF
             money.Text = "Money: " + Program.Money;
             //int idd = (sender as City).Id;
             //citiesIncomeLabels[(sender as City).Id].Text = (sender as City).Income.ToString();
-            citiesIncomeLabels[(sender as City).Id].Text = (a.Product.AmountDone * a.Product.ProductPrice).ToString();
+            //int b = (sender as City).Id;
+            //int c = (sender as City).Products.Count();
+            //int d = a.Product.Id;
+            if (sender is City)
+                citiesIncomeLabels[((sender as City).Id*(sender as City).Products.Count()+a.Product.Id)].Text = (a.Product.AmountDone * a.Product.ProductPrice).ToString();
+            else if (sender is Factory)
+                //factoriesCostLabels[((sender as Factory).Id * (sender as Factory).Products.Count() + a.Product.Id)].Text = (a.Product.AmountDone * a.Product.ProductCost).ToString();
+
             if (Program.Money < 0)
             {
                 MessageBox.Show("You are bankrupt", "This is the end");
                 Application.Exit();
             }
         }
-
-        public static void OnNoComponentsMessage(Facility sender, EventArgs ea)
+        public static void OnFewProductsToSendMessage(Facility sender, ProductEventArgs ea)
         {
-                MessageBox.Show($"Factory {sender} has no components", "No components warning");
+            MessageBox.Show($"Factory {sender.Name} has only {ea.Product.AmountOut}  {ea.Product.Name} to send", "Few products to send warning");
+        }
+
+        public static void OnNoComponentsMessage(Facility sender, ProductEventArgs ea)
+        {
+                MessageBox.Show($"Factory {sender.Name} has no {ea.Product.Name}", "No components warning");
         }
 
         public Form1()
@@ -90,6 +112,17 @@ namespace Industry_WF
                 headerLabelsPos += 100;
                 Controls.Add(headerL);
             }
+            headerLabelsPos = 0;
+            foreach (String header in headersF)
+            {
+                Label headerL = new Label();
+                headerL.Text = header;
+
+                headerL.Font = new Font(SystemFonts.DefaultFont.FontFamily, SystemFonts.DefaultFont.Size, FontStyle.Bold);
+                headerL.Location = new Point(headerLabelsPos, 300);
+                headerLabelsPos += 100;
+                Controls.Add(headerL);
+            }
 
             foreach (City city in World.Cities)
             {
@@ -114,6 +147,33 @@ namespace Industry_WF
                     cityIncomeLabel.Location = new Point(200, citiesLabelsPos);
                     citiesLabelsPos += 20;
                     Controls.Add(cityIncomeLabel);
+                }
+                //citiesLabelsPos += 20;
+
+            }
+            foreach (Factory factory in World.Factories)
+            {
+                Label factoryLabel = new Label();
+                factoriesLabels.Add(factoryLabel);
+                factoryLabel.Text = factory.Name;
+                factoryLabel.Location = new Point(0, factoriesLabelsPos);
+                Controls.Add(factoryLabel);
+
+                foreach (Product product in factory.Products)
+                {
+
+                    Label factoryProductLabel = new Label();
+                    factoriesProductsLabels.Add(factoryProductLabel);
+                    factoryProductLabel.Text = product.Name.ToString();
+                    factoryProductLabel.Location = new Point(100, factoriesLabelsPos);
+                    Controls.Add(factoryProductLabel);
+
+                    Label factoryIncomeLabel = new Label();
+                    factoriesCostLabels.Add(factoryIncomeLabel);
+                    factoryIncomeLabel.Text = (factory.Products[product.Id].AmountDone * factory.Products[product.Id].ProductCost).ToString();
+                    factoryIncomeLabel.Location = new Point(200, factoriesLabelsPos);
+                    factoriesLabelsPos += 20;
+                    Controls.Add(factoryIncomeLabel);
                 }
                 //citiesLabelsPos += 20;
 
