@@ -46,8 +46,14 @@ namespace Industry_WF
                     city.Products.Add(new Product(productType));
                 }
                 city.ProductWasSold += new Write().HandleProductSold;   //event
-                city.ProductWasSold += Form1.OnTransactionDone;
+                //city.ProductWasSold += Form1.OnTransactionDone;
+                city.TransactionDone += Form1.OnTransactionDone;
 
+            }
+
+            foreach (Factory factory in Factories)
+            {
+                factory.OnNoComponents += Form1.OnNoComponentsMessage;
             }
         }
     }

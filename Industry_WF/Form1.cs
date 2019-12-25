@@ -18,12 +18,15 @@ namespace Industry_WF
         private static List<string> headers = new List<string>
         {
             "City",
+            "Product",
             "Income"
         };
         private int headerLabelsPos = 0;
 
         private static List<Label> citiesLabels= new List<Label>();
         private int citiesLabelsPos = 20;
+        //private int citiesProductLabelsPos = 0;
+        private static List<Label> citiesProductsLabels = new List<Label>();
         private static List<Label> citiesIncomeLabels = new List<Label>();
 
 
@@ -33,15 +36,22 @@ namespace Industry_WF
             Round.Go();
         }
 
-        public static void OnTransactionDone(Facility sender, EventArgs ea)
+        public static void OnTransactionDone(object sender, ProductEventArgs a)
         {
             money.Text = "Money: " + Program.Money;
-            citiesIncomeLabels[(sender as City).Id].Text = (sender as City).Income.ToString();
+            //int idd = (sender as City).Id;
+            //citiesIncomeLabels[(sender as City).Id].Text = (sender as City).Income.ToString();
+            citiesIncomeLabels[(sender as City).Id].Text = (a.Product.AmountDone * a.Product.ProductPrice).ToString();
             if (Program.Money < 0)
             {
                 MessageBox.Show("You are bankrupt", "This is the end");
                 Application.Exit();
             }
+        }
+
+        public static void OnNoComponentsMessage(Facility sender, EventArgs ea)
+        {
+                MessageBox.Show($"Factory {sender} has no components", "No components warning");
         }
 
         public Form1()
@@ -87,15 +97,26 @@ namespace Industry_WF
                 citiesLabels.Add(cityLabel);
                 cityLabel.Text = city.Name;
                 cityLabel.Location = new Point(0, citiesLabelsPos);
-                citiesLabelsPos += 20;
                 Controls.Add(cityLabel);
 
-                Label cityIncomeLabel = new Label();
-                citiesIncomeLabels.Add(cityIncomeLabel);
-                cityIncomeLabel.Text = city.Income.ToString();
-                cityIncomeLabel.Location = new Point(100, citiesLabelsPos);
-                citiesLabelsPos += 20;
-                Controls.Add(cityIncomeLabel);
+                foreach (Product product in city.Products)
+                {
+
+                    Label cityProductLabel = new Label();
+                    citiesProductsLabels.Add(cityProductLabel);
+                    cityProductLabel.Text = product.Name.ToString();
+                    cityProductLabel.Location = new Point(100, citiesLabelsPos);
+                    Controls.Add(cityProductLabel);
+
+                    Label cityIncomeLabel = new Label();
+                    citiesIncomeLabels.Add(cityIncomeLabel);
+                    cityIncomeLabel.Text = (city.Products[product.Id].AmountDone* city.Products[product.Id].ProductPrice).ToString();
+                    cityIncomeLabel.Location = new Point(200, citiesLabelsPos);
+                    citiesLabelsPos += 20;
+                    Controls.Add(cityIncomeLabel);
+                }
+                //citiesLabelsPos += 20;
+
             }
         }
 

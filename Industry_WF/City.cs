@@ -52,6 +52,7 @@ namespace Industry_WF
 
                     //activate event
                     ProductWasSold?.Invoke(this, EventArgs.Empty);
+                    TransactionDone?.Invoke(this, new ProductEventArgs(product));
 
                     Console.WriteLine($"{Name} consumed {product.AmountDone} {product.Name}");
                     Console.WriteLine($"{Name} still demands {product.AmountOut} {product.Name}");
@@ -63,11 +64,12 @@ namespace Industry_WF
         }
         //przygotowanie delegata
         public delegate void EventHandler(Facility c, EventArgs e);
+        public delegate void ProductEventHandler(object sender, ProductEventArgs a);
 
         //przygotować deklarację zdarzenia na podstawie powyższego delagata:
         public event EventHandler ProductWasSold;
-        //public void DoSomething() =>
-        //ProductSold?.Invoke(this, EventArgs.Empty);
+        public event EventHandler <ProductEventArgs> TransactionDone;
+
 
         public static double MarketPriceMod(int amountOut, int amountIn)
         {

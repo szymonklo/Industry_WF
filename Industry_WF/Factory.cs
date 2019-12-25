@@ -32,6 +32,11 @@ namespace Industry_WF
             }
         }
 
+        //przygotowanie delegata
+        public delegate void OnNoComponentsDelegate(Facility c, EventArgs e);
+
+        //przygotować deklarację zdarzenia na podstawie powyższego delagata:
+        public event OnNoComponentsDelegate OnNoComponents;
         public void Produce(ProductType productType)
         {
             if (productType.Id != Product.Id)
@@ -53,6 +58,8 @@ namespace Industry_WF
                     else
                     {
                         IsComponent = false;
+                        //activate event
+                        OnNoComponents?.Invoke(this, EventArgs.Empty);
                         break;
                     }
                 }
