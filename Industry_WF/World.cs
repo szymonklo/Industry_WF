@@ -12,7 +12,7 @@ namespace Industry_WF
         public World()
         {
             ProductType water = new ProductType(0, 1, "water", 1);
-            ProductType bread = new ProductType(1, 1, "bread", 2, new List<ProductType> { water });
+            ProductType bread = new ProductType(1, 1, "bread", 3, new List<ProductType> { water });
             List<ProductType> ProductsTypes = new List<ProductType>
             {
                 water,

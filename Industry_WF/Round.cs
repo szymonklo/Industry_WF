@@ -41,7 +41,7 @@ namespace Industry_WF
                         {
                             TransportOrder transportOrder = new TransportOrder();
                             transportOrder.FewProductsToSend += Form1.OnFewProductsToSendMessage;
-                            transportOrder.Go(factoryS, factoryR, factoryS.ProductType, 40);
+                            transportOrder.Go(factoryS, factoryR, factoryS.ProductType, 80);
                         }
                     }
                 }

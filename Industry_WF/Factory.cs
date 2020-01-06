@@ -81,25 +81,26 @@ namespace Industry_WF
             if (AreComponents)
             {
                 double produktsOnStockCosts = 0;
+                Product.AmountDone = ProductionAmount();
 
                 if (productType.Components != null)
                 {
                     foreach (ProductType component in productType.Components)
                     {
                         Product factoryComponent = Products[component.Id];
-                        produktsOnStockCosts += factoryComponent.ProductPrice * ProductionAmount();
-                        factoryComponent.AmountIn -= ProductionAmount();
-                        Console.WriteLine($"{Name} used: {ProductionAmount()} {factoryComponent.Name} (Components remained: {factoryComponent.AmountIn} {factoryComponent.Name})");
+                        produktsOnStockCosts += factoryComponent.ProductPrice * Product.AmountDone;
+                        factoryComponent.AmountIn -= Product.AmountDone;
+                        Console.WriteLine($"{Name} used: {Product.AmountDone} {factoryComponent.Name} (Components remained: {factoryComponent.AmountIn} {factoryComponent.Name})");
                     }
                 }
 
-                Product.AmountOut += ProductionAmount();
-                produktsOnStockCosts += Product.ProductCost * Product.AmountOut + BaseCost;
-                Program.Money -= Product.ProductCost * Product.AmountOut + BaseCost;
+                Product.AmountOut += Product.AmountDone;
+                produktsOnStockCosts += Product.ProductionCost * Product.AmountDone + BaseCost;
+                Program.Money -= produktsOnStockCosts;
                 Product.ProductCost = produktsOnStockCosts / Product.AmountOut;
 
                 TransactionDone?.Invoke(this, new ProductEventArgs(new Product(productType)));
-                Console.WriteLine($"{Name} produced: {ProductionAmount()} {Product.Name} (On stock: {Product.AmountOut} {Product.Name})");
+                Console.WriteLine($"{Name} produced: {Product.AmountDone} {Product.Name} (On stock: {Product.AmountOut} {Product.Name})");
                 Console.WriteLine($"{Product.Name} cost is {Product.ProductCost:c} per 1 pc.");
             }
 

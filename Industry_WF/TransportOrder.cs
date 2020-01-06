@@ -35,9 +35,10 @@ namespace Industry_WF
                     productIn = new Product(productType, Amount);
                     receiver.Products.Add(new Product(productType, Amount));
                 }
-                double productInCost = productIn.AmountIn * productIn.ProductCost + Amount * sender.Products[productType.Id].ProductCost + TransportCost;
-                Program.Money -= TransportCost;
+                double productInCost = productIn.AmountIn * productIn.ProductCost;
                 productIn.AmountIn += Amount;
+                productInCost += Amount * sender.Products[productType.Id].ProductCost + TransportCost;
+                Program.Money -= TransportCost;
                 productIn.ProductCost = productInCost / productIn.AmountIn;
 
                 Console.WriteLine($"Transported {capacity} {productType.Name}");

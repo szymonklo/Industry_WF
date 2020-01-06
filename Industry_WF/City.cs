@@ -43,6 +43,7 @@ namespace Industry_WF
                     product.AmountDone = Math.Min(product.AmountOut, product.AmountIn);
                     product.AmountOut -= product.AmountDone;
                     product.AmountIn -= product.AmountDone;
+                    product.ProductProfit = product.ProductPrice - product.ProductCost;
 
                     Income = product.AmountDone * product.ProductPrice;
                     Program.Money += Income;

@@ -12,6 +12,8 @@ namespace Industry_WF
         public int AmountDone { get; set; }
         public double ProductPrice { get; set; }
         public double ProductCost { get; set; }
+        public double ProductionCost { get; set; }
+
         public double ProductProfit { get; set; }
 
         public Product(int id, byte group, string productName, double defPrice, List<ProductType> components, int amount = 0)
@@ -20,7 +22,7 @@ namespace Industry_WF
         public Product(ProductType productType, int amount = 0)
             : this(productType.Id, productType.Group, productType.Name, productType.DefPrice, productType.Components)
         {
-            ProductCost = productType.Group;
+            ProductionCost = productType.Group;
             AmountIn = amount;
         }
     }
