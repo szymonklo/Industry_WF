@@ -14,6 +14,12 @@ namespace Industry_WF
         /// </summary>
         //[STAThread]
         public static double Money { get; set; } = 1000;
+        public static double Income { get; set; }
+
+        public static double Cost { get; set; }
+
+        public static double Profit { get; set; }
+
         static void Main()
         {
             //Application.SetHighDpiMode(HighDpiMode.SystemAware);

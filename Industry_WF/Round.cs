@@ -12,12 +12,16 @@ namespace Industry_WF
         public static int RoundNumber { get; set; }
         public static void Go()
         {
+            Program.Income = 0;
+            Program.Cost = 0;
+            Program.Profit = 0;
             Console.WriteLine("Round: " + RoundNumber);
             //Cities demand
             Console.WriteLine("**** Cities demand ****\n");
             foreach (City city in World.Cities)
             {
-                city.Demand();
+                //city.Demand();
+                Product.Demand(city);
             }
             Console.WriteLine("\n");
 
@@ -39,9 +43,9 @@ namespace Industry_WF
                     {
                         if (factoryR.ProductType.Components.Contains(factoryS.ProductType))
                         {
-                            TransportOrder transportOrder = new TransportOrder();
+                            TransportOrder transportOrder = TransportOrder.GetOrder(factoryS, factoryR, factoryS.ProductType);
                             transportOrder.FewProductsToSend += Form1.OnFewProductsToSendMessage;
-                            transportOrder.Go(factoryS, factoryR, factoryS.ProductType, 80);
+                            transportOrder.Go();
                         }
                     }
                 }
@@ -52,21 +56,32 @@ namespace Industry_WF
             Console.WriteLine("**** Products are transported from factories to cities ****\n");
             foreach (Factory factory in World.Factories)
             {
+                //optimize transportorders
+                Product product = factory.Product;
+                var citiesId = product.GetMostAndLeastProfitableCities();
+                TransportOrder cheapTransportOrder = TransportOrder.GetOrder(factory, World.Cities[citiesId.Item2], factory.ProductType);
+                TransportOrder expensiveTransportOrder = TransportOrder.GetOrder(factory, World.Cities[citiesId.Item1], factory.ProductType);
+                int amountChange = cheapTransportOrder.Capacity / 3;
+                cheapTransportOrder.Capacity -= amountChange;
+                expensiveTransportOrder.Capacity += amountChange;
+                //end optimize
+
                 foreach (City city in World.Cities)
                 {
-                    TransportOrder transportOrder = new TransportOrder();
+                    TransportOrder transportOrder = TransportOrder.GetOrder(factory, city, factory.ProductType);
                     transportOrder.FewProductsToSend += Form1.OnFewProductsToSendMessage;
-                    transportOrder.Go(factory, city, factory.ProductType, 40);
+                    transportOrder.Go();
                 }
             }
             Console.WriteLine("\n");
 
             //Cities consume
             Console.WriteLine("**** Cities consume ****\n");
-            foreach (City city in World.Cities)
-            {
-                city.Consume();
-            }
+            Product.Consume();
+            //foreach (City city in World.Cities)
+            //{
+            //    city.Consume();
+            //}
             Console.WriteLine("\n");
 
             RoundNumber++;

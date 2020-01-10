@@ -13,8 +13,10 @@ namespace Industry_WF
         public Product Product { get; set; }
         private static readonly int _defProduction = 1;
         public byte Tier { get; set; }
-        public int Id { get; set; }
+        public override int Id { get; set; }
         private static int lastId { get; set; }
+        public new int Type { get; private set; }// = 1;
+        public int AmountoSend { get; set; }
 
         public Factory(string factoryName, int factoryDefProduction, ProductType productType, byte tier)
         {
@@ -24,14 +26,15 @@ namespace Industry_WF
             Tier = tier;
             Id = lastId;
             lastId++;
+            Type = 1;
 
-            Product = new Product(productType);
-            Products.Add(Product);
+            Product = new Product(productType, this);
+            //Product.Add(Product, this);
             if (productType.Components != null)
             {
                 foreach (ProductType component in productType.Components)
                 {
-                    Products.Add(new Product(component));
+                    new Product(component, this);
                 }
             }
         }
@@ -48,7 +51,7 @@ namespace Industry_WF
         {
             if (productType.Id != Product.Id)
             {
-                Product = Products[productType.Id];
+                Product = Product.GetProduct(productType, this);
             }
             bool AreComponents, IsComponent = false;
 
@@ -56,7 +59,7 @@ namespace Industry_WF
             {
                 foreach (ProductType component in productType.Components)
                 {
-                    Product factoryComponent = Products[component.Id];
+                    Product factoryComponent = Product.GetProduct(component, this);
                     if (factoryComponent.AmountIn >= ProductionAmount())
                     {
                         IsComponent = true;
@@ -87,7 +90,7 @@ namespace Industry_WF
                 {
                     foreach (ProductType component in productType.Components)
                     {
-                        Product factoryComponent = Products[component.Id];
+                        Product factoryComponent = Product.GetProduct(component, this);
                         produktsOnStockCosts += factoryComponent.ProductPrice * Product.AmountDone;
                         factoryComponent.AmountIn -= Product.AmountDone;
                         Console.WriteLine($"{Name} used: {Product.AmountDone} {factoryComponent.Name} (Components remained: {factoryComponent.AmountIn} {factoryComponent.Name})");
@@ -96,10 +99,11 @@ namespace Industry_WF
 
                 Product.AmountOut += Product.AmountDone;
                 produktsOnStockCosts += Product.ProductionCost * Product.AmountDone + BaseCost;
+                Program.Cost -= produktsOnStockCosts;
                 Program.Money -= produktsOnStockCosts;
                 Product.ProductCost = produktsOnStockCosts / Product.AmountOut;
 
-                TransactionDone?.Invoke(this, new ProductEventArgs(new Product(productType)));
+                TransactionDone?.Invoke(this, new ProductEventArgs(Product.GetProduct(productType, this)));
                 Console.WriteLine($"{Name} produced: {Product.AmountDone} {Product.Name} (On stock: {Product.AmountOut} {Product.Name})");
                 Console.WriteLine($"{Product.Name} cost is {Product.ProductCost:c} per 1 pc.");
             }

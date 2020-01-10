@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using Industry_WF;
 
@@ -18,19 +19,19 @@ namespace Industry_WF
                 water,
                 bread
             };
-            ProductsKeyed products = new ProductsKeyed();
-            foreach (ProductType productType in ProductsTypes)
-            {
-                products.Add(new Product(productType));
-            }
+            //ProductsKeyed products = new ProductsKeyed();
+            //foreach (ProductType productType in ProductsTypes)
+            //{
+            //    products.Add(new Product(productType));
+            //}
 
             Factory waterSupply = new Factory("Water supply", 100, water, 4);
             Factory bakery = new Factory("Bakery", 60, bread, 3);
             Factories.Add(waterSupply);
             Factories.Add(bakery);
             //temp
-            bakery.Products[0].AmountIn = 200;
-            bakery.Products[0].ProductPrice = 1.1;
+            Product.GetProduct(water, bakery).AmountIn = 400;
+            Product.GetProduct(water, bakery).ProductPrice = 1.1;
 
             City krakow = new City("Krakow", 80);
             City warszawa = new City("Warszawa", 100);
@@ -38,16 +39,18 @@ namespace Industry_WF
             Cities.Add(warszawa);
             //Create cities demand
             //Console.WriteLine("**** Cities demand ****\n");
+            Product.ProductWasSold += new Write().HandleProductSold;   //event
+            Product.TransactionDone += Form1.OnTransactionDone;
             foreach (City city in Cities)
             {
                 //form1.AddCityLabel(city);
                 foreach (ProductType productType in ProductsTypes)
                 {
-                    city.Products.Add(new Product(productType));
+                    new Product(productType, city);
                 }
-                city.ProductWasSold += new Write().HandleProductSold;   //event
-                //city.ProductWasSold += Form1.OnTransactionDone;
-                city.TransactionDone += Form1.OnTransactionDone;
+                //city.ProductWasSold += new Write().HandleProductSold;   //event
+                ////city.ProductWasSold += Form1.OnTransactionDone;
+                //city.TransactionDone += Form1.OnTransactionDone;
 
             }
 
@@ -56,6 +59,46 @@ namespace Industry_WF
                 factory.NoComponents += Form1.OnNoComponentsMessage;
                 factory.TransactionDone += Form1.OnTransactionDone;
             }
+            // Products are transported from "tier n" to "tier n-1" factories
+            //Console.WriteLine("**** Products are transported from tier n to tier n - 1 factories ****\n");
+            for (int t = 4; t > 0; t--)
+            {
+                foreach (Factory factoryS in World.Factories.Where(factoryS => factoryS.Tier == t))
+                {
+                    int receiversNumber = World.Factories.Where(factoryR => factoryR.Tier == t - 1).Where(factoryR => factoryR.ProductType.Components != null).Where(factoryR => factoryR.ProductType.Components.Contains(factoryS.ProductType)).Count();
+                    receiversNumber += World.Cities.Count();
+                    int capacity = factoryS.DefProduction / receiversNumber;
+                    factoryS.AmountoSend = capacity;
+
+                    foreach (Factory factoryR in World.Factories.Where(factoryR => factoryR.Tier == t - 1).Where(factoryR => factoryR.ProductType.Components != null))
+                    {
+                        if (factoryR.ProductType.Components.Contains(factoryS.ProductType))
+                        {
+                            
+                            TransportOrder transportOrder = new TransportOrder(factoryS, factoryR, factoryS.ProductType, capacity);
+                            //transportOrder.FewProductsToSend += Form1.OnFewProductsToSendMessage;
+                            //transportOrder.Go();
+                        }
+                    }
+                }
+            }
+            //Console.WriteLine("\n");
+
+            //Products are transported from factories to cities
+            //Console.WriteLine("**** Products are transported from factories to cities ****\n");
+            foreach (Factory factory in World.Factories)
+            {
+                foreach (City city in World.Cities)
+                {
+                    //int receiversNumber = World.Factories.Where(factoryR => factoryR.ProductType.Components.Contains(factoryS.ProductType)).Count();
+                    //receiversNumber += World.Cities.Count();
+                    int capacity = factory.AmountoSend;
+                    TransportOrder transportOrder = new TransportOrder(factory, city, factory.ProductType, capacity);
+                    //transportOrder.FewProductsToSend += Form1.OnFewProductsToSendMessage;
+                    //transportOrder.Go();
+                }
+            }
+            //Console.WriteLine("\n");
         }
     }
 }

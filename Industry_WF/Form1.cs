@@ -15,6 +15,15 @@ namespace Industry_WF
     {
         private Button bNextRound = new Button();
         private static Label money = new Label();
+        private static Label income = new Label();
+        private static Label cost = new Label();
+        private static Label profit = new Label();
+
+        private static Label moneyA = new Label();
+        private static Label incomeA = new Label();
+        private static Label costA = new Label();
+        private static Label profitA = new Label();
+
         private static List<string> headersC = new List<string>
         {
             "City",
@@ -38,7 +47,7 @@ namespace Industry_WF
         private int factoriesLabelsPos = 320;
         //private int citiesProductLabelsPos = 0;
         private static List<Label> citiesProductsLabels = new List<Label>();
-        private static List<Label> citiesIncomeLabels = new List<Label>();
+        private static Dictionary<Tuple<int, int>, Label> citiesIncomeLabels = new Dictionary<Tuple<int, int>, Label>();
         private static Dictionary<Tuple<int, int>, Label> citiesUnitProfitLabels = new Dictionary<Tuple<int, int>, Label>();
         private static Dictionary<Tuple<int, int>, Label> citiesAmountLabels = new Dictionary<Tuple<int, int>, Label>();
 
@@ -59,7 +68,18 @@ namespace Industry_WF
 
         public static void OnTransactionDone(object sender, ProductEventArgs a)
         {
-            money.Text = "Money: " + Program.Money;
+            money.Text = "Money: ";
+            income.Text = "Income: ";
+            cost.Text = "Cost: ";
+            //Program.Profit = Program.Income + Program.Cost;
+            profit.Text = "Profit: ";
+
+            moneyA.Text = String.Format($"{ Program.Money:C}");
+            incomeA.Text = String.Format($"{ Program.Income:C}");
+            costA.Text = String.Format($"{ Program.Cost:C}");
+            Program.Profit = Program.Income + Program.Cost;
+            profitA.Text = String.Format($"{ Program.Profit:C}");
+
             //int idd = (sender as City).Id;
             //citiesIncomeLabels[(sender as City).Id].Text = (sender as City).Income.ToString();
             //int b = (sender as City).Id;
@@ -67,15 +87,19 @@ namespace Industry_WF
             //int d = a.Product.Id;
             if (sender is City)
             {
-                citiesIncomeLabels[((sender as City).Id * (sender as City).Products.Count() + a.Product.Id)].Text = (a.Product.AmountDone * a.Product.ProductPrice).ToString();
-                
                 City city = (City)sender;
                 Product product = a.Product;
                 Tuple<int, int> tKey = new Tuple<int, int>(city.Id, a.Product.Id);
-                double textC = city.Products[product.Id].ProductProfit;
+                double textCI = product.AmountDone * product.ProductPrice;
+                citiesIncomeLabels[tKey].Text = String.Format($"{textCI:C}");
+
+                //citiesIncomeLabels[((sender as City).Id * (sender as City).Products.Count() + a.Product.Id)].Text = 
+                
+                
+                double textC = Product.GetProduct(product.Id, city).ProductProfit;
                 citiesUnitProfitLabels[tKey].Text = String.Format($"{textC:C}");
 
-                double textCA = city.Products[product.Id].AmountDone;
+                double textCA = Product.GetProduct(product.Id, city).AmountDone;
                 citiesAmountLabels[tKey].Text = String.Format($"{textCA}");
             }
 
@@ -87,7 +111,7 @@ namespace Industry_WF
                 Tuple<int, int> tKey = new Tuple<int, int>(((Factory)sender).Id, a.Product.Id);
                 //factoriesCostLabels[tKey].Text = (factory.Products[product.Id].AmountDone * factory.Products[product.Id].ProductCost).ToString();
 
-                double text = (factory.Products[product.Id].AmountDone * factory.Products[product.Id].ProductCost);
+                double text = (Product.GetProduct(product.Id, factory).AmountDone * Product.GetProduct(product.Id, factory).ProductCost);
                 factoriesCostLabels[tKey].Text = String.Format($"{text:C}");
             }
 
@@ -127,10 +151,39 @@ namespace Industry_WF
             bNextRound.Click += new EventHandler(OnbNextRoundClick);
             Controls.Add(bNextRound);
 
-            money.Location = new Point(ClientSize.Width - bNextRound.Width, 0);
-            money.Text = "Money: " + Program.Money;
+            money.Location = new Point(ClientSize.Width - bNextRound.Width-150, 0);
+            income.Location = new Point(ClientSize.Width - bNextRound.Width - 150, 20);
+            cost.Location = new Point(ClientSize.Width - bNextRound.Width - 150, 40);
+            profit.Location = new Point(ClientSize.Width - bNextRound.Width - 150, 60);
+
+            moneyA.TextAlign = ContentAlignment.MiddleRight;
+            incomeA.TextAlign = ContentAlignment.MiddleRight;
+            costA.TextAlign = ContentAlignment.MiddleRight;
+            profitA.TextAlign = ContentAlignment.MiddleRight;
+
+            moneyA.Location = new Point(ClientSize.Width - bNextRound.Width - 40, 0);
+            incomeA.Location = new Point(ClientSize.Width - bNextRound.Width - 40, 20);
+            costA.Location = new Point(ClientSize.Width - bNextRound.Width - 40, 40);
+            profitA.Location = new Point(ClientSize.Width - bNextRound.Width - 40, 60);
+
+            
+
+            money.Text = "Money: " ;
+            income.Text = "Income: " ;
+            cost.Text = "Cost: " ;
+            profit.Text = "Profit: " ;
+
 
             Controls.Add(money);
+            Controls.Add(income);
+            Controls.Add(cost);
+            Controls.Add(profit);
+
+            Controls.Add(moneyA);
+            Controls.Add(incomeA);
+            Controls.Add(costA);
+            Controls.Add(profitA);
+
 
             //HEADER
             foreach (String header in headersC)
@@ -163,8 +216,9 @@ namespace Industry_WF
                 cityLabel.Location = new Point(0, citiesLabelsPos);
                 Controls.Add(cityLabel);
 
-                foreach (Product product in city.Products)
+                foreach (Product product in from p in Product.productD where p.Key.Item1 == 2 && p.Key.Item2 == city.Id select p.Value)
                 {
+                    Tuple<int, int> tKey = new Tuple<int, int>(city.Id, product.Id);
 
                     Label cityProductLabel = new Label();
                     citiesProductsLabels.Add(cityProductLabel);
@@ -173,13 +227,12 @@ namespace Industry_WF
                     Controls.Add(cityProductLabel);
 
                     Label cityIncomeLabel = new Label();
-                    citiesIncomeLabels.Add(cityIncomeLabel);
-                    cityIncomeLabel.Text = (city.Products[product.Id].AmountDone* city.Products[product.Id].ProductPrice).ToString();
+                    citiesIncomeLabels.Add(tKey, cityIncomeLabel);
+                    cityIncomeLabel.Text = (Product.GetProduct(product.Id, city).AmountDone* Product.GetProduct(product.Id, city).ProductPrice).ToString();
                     cityIncomeLabel.Location = new Point(200, citiesLabelsPos);
                     //citiesLabelsPos += 20;
                     Controls.Add(cityIncomeLabel);
 
-                    Tuple<int, int> tKey = new Tuple<int, int>(city.Id, product.Id);
 
                     Label cityUnitProfitLabel = new Label();
                     citiesUnitProfitLabels.Add(tKey, cityUnitProfitLabel);
@@ -189,7 +242,7 @@ namespace Industry_WF
 
                     Label cityAmountLabel = new Label();
                     citiesAmountLabels.Add(tKey, cityAmountLabel);
-                    double textCA = city.Products[product.Id].AmountDone;
+                    double textCA = Product.GetProduct(product.Id, city).AmountDone;
                     citiesAmountLabels[tKey].Text = String.Format($"{textCA}");
                     cityAmountLabel.Location = new Point(400, citiesLabelsPos);
                     Controls.Add(cityAmountLabel);
@@ -212,7 +265,7 @@ namespace Industry_WF
                 factoryLabel.Location = new Point(0, factoriesLabelsPos);
                 Controls.Add(factoryLabel);
 
-                foreach (Product product in factory.Products)
+                foreach (Product product in Product.productD.Where (p => p.Key.Item1 == 1).Where(p => p.Key.Item2 == factory.Id).Select(p=> p.Value))
                 {
                     Tuple<int, int> tKey = new Tuple<int, int>(factory.Id, product.Id);
 
@@ -224,7 +277,7 @@ namespace Industry_WF
 
                     Label factoryCostLabel = new Label();
                     factoriesCostLabels.Add(tKey, factoryCostLabel);
-                    double text = (factory.Products[product.Id].AmountDone * factory.Products[product.Id].ProductCost);
+                    double text = (Product.GetProduct(product.Id, factory).AmountDone * Product.GetProduct(product.Id, factory).ProductCost);
                     factoryCostLabel.Text = String.Format($"{text:C}");
                     factoryCostLabel.Location = new Point(200, factoriesLabelsPos);
                     factoriesLabelsPos += 20;
